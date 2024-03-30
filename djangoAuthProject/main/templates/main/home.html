@@ -1,0 +1,47 @@
+{% extends "main/base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<div>
+    {% for post in post_list %}
+        <div class="card mb-4">
+            <div class="card-header">
+                @{{ post.user.username }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{post.title}}</h5>
+                <p class="card-text">{{post.body}}</p>
+                <div class="d-flex gap-3">
+                    {% if user == post.user or perms.main.delete_post %}
+                    <form class="" action="{% url 'main:delete-post' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" name="post_id" value={{post.id}}>Delete post</button>
+                    </form>
+                    {% endif %}
+
+                    {% if user.is_superuser %}
+                    
+                        {% if post.user.groups.exists %}
+                            <form action="{% url 'main:ban-user' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning" name="user_id" value={{post.user.id}}>Ban user</button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'main:ban-user' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success" name="user_id" value={{post.user.id}}>Grant permission</button>
+                            </form>
+                        {% endif %}
+                        
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                {{post.created_at}}
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-center">No posts found!</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
